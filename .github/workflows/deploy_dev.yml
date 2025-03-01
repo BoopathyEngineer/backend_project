@@ -51,8 +51,7 @@ jobs:
           PARAMS+=" ParameterKey=SubEnv,ParameterValue=${SUB_ENV}"
           PARAMS+=" ParameterKey=CognitoID,ParameterValue=${COGNITO}"
           PARAMS+=" ParameterKey=ClientID,ParameterValue=${CLIENT}"
-          PARAMS+=" ParameterKey=DomainName,ParameterValue=${DOMAIN}"
-          PARAMS+=" ParameterKey=CertificateArn,ParameterValue=${CERT_ARN}"
+
           
           echo SUB_ENV=$SUB_ENV >> $GITHUB_ENV
           echo BRANCH_NAME=$BRANCH_NAME >> $GITHUB_ENV
