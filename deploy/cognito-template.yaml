@@ -303,7 +303,7 @@ email; no changes have been made to your account.
     Type: AWS::Cognito::UserPoolDomain 
     Properties:
       UserPoolId: !Ref CognitoUserPool 
-      Domain: !Sub  "zita-${Environment}-domain"
+      Domain: !Sub  "zita-${Environment}-${AWS::AccountId}-domain"
   
   CognitoUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
