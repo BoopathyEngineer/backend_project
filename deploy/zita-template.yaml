@@ -303,7 +303,7 @@ Resources:
               method.response.header.Access-Control-Allow-Origin: "'*'"
         RequestTemplates:
           application/json: "{\"statusCode\": 200}"
-        TimeoutInMillis: 59000
+        TimeoutInMillis: 29000  # Updated to a valid value (29 seconds)
       MethodResponses:
         - StatusCode: 200
           ResponseModels:
