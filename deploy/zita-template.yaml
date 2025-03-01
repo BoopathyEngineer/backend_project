@@ -682,15 +682,7 @@ Resources:
   #     SecurityPolicy: TLS_1_2  
   
   #: Map the custom domain to the RestApi
-  BasePathMapping:
-    Type: AWS::ApiGateway::BasePathMapping
-    Condition: CustomDomains
-    Properties:
-      DomainName: !Ref DomainName  
-      RestApiId: !Ref MyApi  
-      Stage: !Ref MyStage
 
-  #: API_KEY AUTHENTICATION FOR LambdaHandlerFunction   
   MyApi:
     Type: AWS::ApiGateway::RestApi
     Properties:
@@ -721,7 +713,6 @@ Resources:
       ResourceId: !Ref ProxyResourceAPI
       HttpMethod: ANY
       AuthorizationType: None
-      # AuthorizerId: !Ref MyAuthorizer
       ApiKeyRequired: True
       Integration:
         Type: AWS_PROXY
@@ -744,7 +735,6 @@ Resources:
             method.response.header.Access-Control-Allow-Headers: true
             method.response.header.Access-Control-Allow-Methods: true
             method.response.header.Access-Control-Allow-Credentials: true
-
 
   OptionsMethodAPI:
     Type: AWS::ApiGateway::Method
@@ -805,8 +795,6 @@ Resources:
 
   MyStage:
     Type: AWS::ApiGateway::Stage
-    # DependsOn:
-    #   - MyDeploymentApi
     Properties:
       StageName: prod
       DeploymentId: !Ref MyDeploymentApi
@@ -814,7 +802,6 @@ Resources:
 
   MyUsagePlan:
     Type: AWS::ApiGateway::UsagePlan
-    # Condition: CreateUsagePlan
     Properties:
       UsagePlanName: !Sub gateway-${Environment}${SubEnv}
       ApiStages:
@@ -841,14 +828,12 @@ Resources:
       KeyType: "API_KEY"
       UsagePlanId: !Ref MyUsagePlan
 
-
-#: Outputs
 Outputs:
   LambdaHandlerFunction:
     Description: Zita's LambdaHandler Function ARN
     Value: !GetAtt LambdaHandlerFunction.Arn
   UserPoolARN:
-    Description: ARN of the  Cognito User Pool
+    Description: ARN of the Cognito User Pool
     Value: !Sub arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${CognitoID}
   CongitoID:
     Description: CongitoID of the Cognito User Pool
@@ -856,12 +841,6 @@ Outputs:
   ClientID:
     Description: ClientID of the Cognito User Pool
     Value: !Sub ${ClientID}
-  CertificateArn:
-    Description: CertificateArn of this Workflow
-    Value: !Sub ${CertificateArn}
-  DomainName:
-    Description: DomainName of this Workflow
-    Value: !Sub ${DomainName}
   ApiId:
     Description: "ID of the API Gateway"
     Value: !Ref MyApi
