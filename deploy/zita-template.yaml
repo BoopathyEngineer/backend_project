@@ -107,7 +107,7 @@ Resources:
   S3BranchBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub zita-${Environment}${SubEnv}
+      BucketName: !Sub zita-${Environment}${SubEnv}-${AWS::AccountId}
       AccessControl: Private
       BucketEncryption:
         ServerSideEncryptionConfiguration:
