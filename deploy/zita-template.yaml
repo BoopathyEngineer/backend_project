@@ -31,13 +31,6 @@ Parameters:
     Type: String
     Description: cognito client id
 
-  CertificateArn:
-    Type: String
-    Description: ARN of the SSL certificate
-  
-  DomainName:
-    Type: String
-    Description: The custom domain name for the API Gateway
 
 
 Globals:
