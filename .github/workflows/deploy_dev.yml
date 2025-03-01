@@ -1,12 +1,11 @@
-
 name: Zita Develop
 on:
-    push:
-      branches:
-        - development
-      paths-ignore:
-        - '*.md'
-    workflow_dispatch:
+  push:
+    branches:
+      - development
+    paths-ignore:
+      - '*.md'
+  workflow_dispatch:
 
 jobs:
   build-deploy:
@@ -42,16 +41,10 @@ jobs:
           SUB_ENV=''
           DB_NAME=zita
           CLIENT=73o5sjva3jgfu6e71h09fu01st
-          DOMAIN=api.service.zita.ai
-          CERT_ARN=$(aws acm list-certificates --certificate-statuses ISSUED \
-          --query 'CertificateSummaryList[?DomainName==`api.service.zita.ai`].CertificateArn' \
-          --output text)
-
           PARAMS="ParameterKey=Environment,ParameterValue=${ZITA_ENV}"
           PARAMS+=" ParameterKey=SubEnv,ParameterValue=${SUB_ENV}"
           PARAMS+=" ParameterKey=CognitoID,ParameterValue=${COGNITO}"
           PARAMS+=" ParameterKey=ClientID,ParameterValue=${CLIENT}"
-
           
           echo SUB_ENV=$SUB_ENV >> $GITHUB_ENV
           echo BRANCH_NAME=$BRANCH_NAME >> $GITHUB_ENV
@@ -60,7 +53,6 @@ jobs:
           echo CLIENT=$CLIENT >> $GITHUB_ENV
           echo PARAMS=$PARAMS >> $GITHUB_ENV
           
-
       - name: SAM build
         run: sam build --use-container --template deploy/zita-template.yaml --config-file deploy/samconfig-prod.toml
 

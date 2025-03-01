@@ -5,33 +5,22 @@ Description: >
 
   Sample SAM Template for ZitaAPI
 
-## More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
-
 Parameters:
   Environment:
     Description: Sub environment to deploy the application
     Type: String
     Default: ''
-    # AllowedValues:
-    #   - staging
-    #   - production
-    # - staging
-    #   - production
   SubEnv:
     Type: String
     Default: ''
     Description: Sub environment to deploy the application
     MaxLength: 30
-
   CognitoID:
     Type: String
-    Description: cognito deployment
-  
+    Description: Cognito deployment
   ClientID:
     Type: String
-    Description: cognito client id
-
-
+    Description: Cognito client ID
 
 Globals:
   Function:
@@ -56,13 +45,8 @@ Globals:
         BUCKETNAME : !Ref S3BranchBucket
 
 Conditions:
-  CustomDomains: !Equals [!Ref Environment, "dev"]
-
   SchedulerOn: 
     Fn::Or:
-      # - Fn::Equals:
-      #     - !Ref Environment
-      #     - feature
       - Fn::Equals:
           - !Ref Environment
           - dev
@@ -72,9 +56,6 @@ Conditions:
       - Fn::Equals:
           - !Ref Environment
           - prod
-
-  # Api:
-  #   TracingEnabled: true
 
 Resources:
   #: ROLE
@@ -258,7 +239,6 @@ Resources:
       RestApiId: !Ref MyApiGateway
       StageName: Prod
 
-
   #: NO AUTHENTICATION FOR AUTH SignupHandlerFunction  
   MySignUpGateway:
     Type: AWS::ApiGateway::RestApi
@@ -372,12 +352,9 @@ Resources:
       RestApiId: !Ref MySignUpGateway
       StageName: Prod
 
-
-
-
   #: LAMBDDA FUNCTION
   LambdaHandlerFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub gateway-${Environment}${SubEnv}
       Role: !GetAtt LambdaRole.Arn
@@ -386,14 +363,14 @@ Resources:
       Runtime: python3.9
       Events:
         LambdaHandlerAPI:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api
           Properties:
             RestApiId : !Ref MyApi
             Path: /{proxy+}
             Method: ANY
 
   AuthHandlerFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub auth-${Environment}${SubEnv}
       Role: !GetAtt LambdaRole.Arn
@@ -402,14 +379,14 @@ Resources:
       Runtime: python3.9
       Events:
         LambdaHandlerAPI:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api
           Properties:
             RestApiId : !Ref MyApiGateway
             Path: /{proxy+}
             Method: ANY
 
   SignupHandlerFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub signup-${Environment}${SubEnv}
       Role: !GetAtt LambdaRole.Arn
@@ -418,7 +395,7 @@ Resources:
       Runtime: python3.9
       Events:
         LambdaHandlerAPI:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api
           Properties:
             RestApiId : !Ref MySignUpGateway
             Path: /{proxy+}
@@ -663,19 +640,7 @@ Resources:
       SSESpecification:
         SSEEnabled: true
 
-  ##: Define the custom domain
-  # CustomDomain:
-  #   Type: AWS::ApiGateway::DomainName
-  #   Properties:
-  #     DomainName: !Sub ${DomainName}  # Replace with your custom domain
-  #     EndpointConfiguration:
-  #       Types: 
-  #         - EDGE 
-  #     RegionalCertificateArn: !Ref CertificateArn  
-  #     SecurityPolicy: TLS_1_2  
-  
-  #: Map the custom domain to the RestApi
-
+  #: API_KEY AUTHENTICATION FOR LambdaHandlerFunction   
   MyApi:
     Type: AWS::ApiGateway::RestApi
     Properties:
@@ -706,6 +671,7 @@ Resources:
       ResourceId: !Ref ProxyResourceAPI
       HttpMethod: ANY
       AuthorizationType: None
+      # AuthorizerId: !Ref MyAuthorizer
       ApiKeyRequired: True
       Integration:
         Type: AWS_PROXY
@@ -788,6 +754,8 @@ Resources:
 
   MyStage:
     Type: AWS::ApiGateway::Stage
+    # DependsOn:
+    #   - MyDeploymentApi
     Properties:
       StageName: prod
       DeploymentId: !Ref MyDeploymentApi
@@ -795,6 +763,7 @@ Resources:
 
   MyUsagePlan:
     Type: AWS::ApiGateway::UsagePlan
+    # Condition: CreateUsagePlan
     Properties:
       UsagePlanName: !Sub gateway-${Environment}${SubEnv}
       ApiStages:
@@ -821,12 +790,13 @@ Resources:
       KeyType: "API_KEY"
       UsagePlanId: !Ref MyUsagePlan
 
+#: Outputs
 Outputs:
   LambdaHandlerFunction:
     Description: Zita's LambdaHandler Function ARN
     Value: !GetAtt LambdaHandlerFunction.Arn
   UserPoolARN:
-    Description: ARN of the Cognito User Pool
+    Description: ARN of the  Cognito User Pool
     Value: !Sub arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${CognitoID}
   CongitoID:
     Description: CongitoID of the Cognito User Pool
@@ -837,5 +807,3 @@ Outputs:
   ApiId:
     Description: "ID of the API Gateway"
     Value: !Ref MyApi
-    
-  
